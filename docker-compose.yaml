@@ -1,0 +1,80 @@
+version: '3.7'
+
+services:
+  service-registry:
+    image: service-registry:0.1
+    container_name: service-registry
+    mem_limit: 500m
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - currency-network
+  
+  config-server:
+    image: config-server:0.1
+    container_name: config-server
+    mem_limit: 500m
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    volumes:
+      - './spring-local-config-repo:/app/spring-local-config-repo'
+    networks:
+      - currency-network
+  
+  zipkin-server:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "8411:8411"
+    networks:
+      - currency-network
+
+  currency-conversion:
+    image: currency-conversion:0.1
+    container_name: currency-conversion
+    mem_limit: 750m
+    ports:
+      - "8100:8100"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - currency-network
+    depends_on:
+      - service-registry
+      - config-server
+      - zipkin-server
+
+  currency-exchange:
+    image: currency-exchange:0.1
+    container_name: currency-exchange
+    mem_limit: 750m
+    ports:
+      - "8000:8000"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - currency-network
+    depends_on:
+      - service-registry
+      - config-server
+      - zipkin-server
+
+  api-gateway:
+      image: api-gateway:0.1
+      container_name: api-gateway
+      mem_limit: 500m
+      ports:
+        - "8765:8765"
+      environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      networks:
+        - currency-network
+      depends_on:
+        - currency-exchange
+
+networks:
+  currency-network:

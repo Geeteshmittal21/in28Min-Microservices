@@ -1,0 +1,43 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: currency-exchange
+  config:
+    import: optional:configserver:http://config-server:8888
+  cloud:
+    config:
+      profile: docker
+  jpa:
+    show-sql: true
+    defer-datasource-initialization: true
+  datasource:
+    url: jdbc:h2:mem:testdb
+  h2:
+    console:
+      enabled: true
+
+#eureka:
+#  instance:
+#    hostname: service-registry
+#  client:
+#    register-with-eureka: true
+#    fetch-registry: true
+#    service-url:
+#      defaultZone: http://${eureka.instance.hostname}:8761/eureka
+
+management:
+  tracing:
+    sampling:
+       probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://zipkin-server:9411/api/v2/spans
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+
+

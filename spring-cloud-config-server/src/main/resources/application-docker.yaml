@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: spring-cloud-config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/Geeteshmittal21/currency-repo
+          skip-ssl-validation: true
+          default-label: master
+
+server:
+  port: 8888
